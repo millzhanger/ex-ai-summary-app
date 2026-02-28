@@ -65,7 +65,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="h-screen flex flex-col overflow-hidden">
       <Header />
 
       {/* Mobile tab bar */}
@@ -92,9 +92,9 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="flex flex-1 container mx-auto px-4 py-4 md:py-8 gap-6 min-h-0">
+      <div className="flex flex-1 overflow-hidden container mx-auto px-3 md:px-4 py-3 md:py-8 gap-6 min-h-0">
         {/* Sidebar — always visible on md+, conditionally on mobile */}
-        <aside className={`w-full md:w-80 flex flex-col gap-4 shrink-0 ${
+        <aside className={`w-full md:w-80 flex flex-col gap-3 shrink-0 overflow-y-auto ${
           mobileView === 'list' ? 'flex' : 'hidden md:flex'
         }`}>
           <FileUploader onUploadComplete={handleUploadComplete} onError={handleError} />

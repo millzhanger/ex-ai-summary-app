@@ -117,12 +117,12 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
   return (
     <div className="flex-1 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-gray-100">
-        <p className="font-medium text-gray-800 truncate max-w-[60%]">{file.name}</p>
+      <div className="flex items-center justify-between gap-2 px-3 md:px-4 py-2 md:py-3 border-b border-gray-100">
+        <p className="font-medium text-gray-800 truncate text-sm md:text-base max-w-[60%]">{file.name}</p>
         <button
           onClick={handleSummarize}
           disabled={loadingSummary || loadingExtract || loadingPreview}
-          className="shrink-0 px-4 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="shrink-0 px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors whitespace-nowrap"
         >
           {loadingSummary ? 'Summarizing…' : summary ? '🔄 Regenerate' : '✨ Summarize'}
         </button>
@@ -134,7 +134,7 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors ${
               activeTab === tab
                 ? 'border-b-2 border-indigo-500 text-indigo-600'
                 : 'text-gray-500 hover:text-gray-700'
