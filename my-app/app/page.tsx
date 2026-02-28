@@ -7,7 +7,7 @@ import FileList from '@/app/components/FileList';
 import DocumentViewer from '@/app/components/DocumentViewer';
 import StatusMessage from '@/app/components/StatusMessage';
 import { UploadedFile } from '@/app/lib/types';
-import { listFiles } from '@/app/lib/api';
+import { listFiles, resetRegistry } from '@/app/lib/api';
 
 export default function Home() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -51,6 +51,19 @@ export default function Home() {
     setStatus({ message, type: 'error' });
   };
 
+  const handleResetRegistry = async () => {
+    if (!confirm('This will clear all file records. You will need to re-upload your files. Continue?')) return;
+    try {
+      await resetRegistry();
+      setFiles([]);
+      setSelectedFile(null);
+      setMobileView('list');
+      setStatus({ message: 'Registry cleared. You can now re-upload your files.', type: 'success' });
+    } catch (err) {
+      setStatus({ message: err instanceof Error ? err.message : 'Reset failed.', type: 'error' });
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
@@ -90,7 +103,17 @@ export default function Home() {
               Loading documents…
             </div>
           ) : (
-            <FileList files={files} selectedFile={selectedFile} onSelect={handleSelect} onDelete={handleDelete} />
+            <>
+              <FileList files={files} selectedFile={selectedFile} onSelect={handleSelect} onDelete={handleDelete} />
+              {files.length > 0 && (
+                <button
+                  onClick={handleResetRegistry}
+                  className="text-xs text-red-400 hover:text-red-600 underline text-center mt-1"
+                >
+                  Clear registry (fix &quot;Object not found&quot; errors)
+                </button>
+              )}
+            </>
           )}
         </aside>
 

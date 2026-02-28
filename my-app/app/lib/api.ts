@@ -64,6 +64,12 @@ export async function deleteFile(storagePath: string, id: string): Promise<void>
   await handleResponse<{ success: boolean }>(res);
 }
 
+/** Clear the file registry (use when files show "Object not found" errors). */
+export async function resetRegistry(): Promise<void> {
+  const res = await fetch('/api/reset', { method: 'DELETE' });
+  await handleResponse<{ message: string }>(res);
+}
+
 /** Download a file by fetching a signed URL then triggering a browser download. */
 export async function downloadFile(storagePath: string, fileName: string): Promise<void> {
   const url = await getPreviewUrl(storagePath);
