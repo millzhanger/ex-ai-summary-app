@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createAdminClient } from '@/app/lib/supabaseAdmin';
 import { config } from '@/app/lib/config';
 import { UploadedFile } from '@/app/lib/types';
+import { registryAdd } from '@/app/lib/registry';
 
 export const runtime = 'nodejs';
 
@@ -30,9 +31,9 @@ export async function POST(req: NextRequest) {
     const bucketExists = buckets?.some((b) => b.name === bucketName);
     if (!bucketExists) {
       const { error: createError } = await supabase.storage.createBucket(bucketName, {
-        public: true,
+        public: false,
         allowedMimeTypes: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'],
-        fileSizeLimit: 10 * 1024 * 1024, // 10 MB
+        fileSizeLimit: 10 * 1024 * 1024,
       });
       if (createError) throw new Error(`Could not create bucket: ${createError.message}`);
     }
@@ -41,9 +42,7 @@ export async function POST(req: NextRequest) {
       .from(bucketName)
       .upload(storagePath, buffer, { contentType: file.type, upsert: false });
 
-    if (storageError) {
-      throw new Error(`Storage error: ${storageError.message}`);
-    }
+    if (storageError) throw new Error(`Storage error: ${storageError.message}`);
 
     const uploadedFile: UploadedFile = {
       id,
@@ -53,6 +52,9 @@ export async function POST(req: NextRequest) {
       storagePath,
       uploadedAt: new Date().toISOString(),
     };
+
+    // Save metadata to the registry file in storage.
+    await registryAdd(uploadedFile);
 
     return NextResponse.json(uploadedFile, { status: 201 });
   } catch (err: unknown) {
