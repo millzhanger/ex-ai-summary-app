@@ -11,7 +11,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
     "mammoth": "^1.7.0",
-    "next": "15.2.4",
+    "next": "15.2.8",
     "openai": "^4.28.0",
     "pdf-parse": "^1.1.1",
     "react": "^18",
