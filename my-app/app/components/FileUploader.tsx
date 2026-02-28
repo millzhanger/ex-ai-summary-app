@@ -49,7 +49,7 @@ export default function FileUploader({ onUploadComplete, onError }: Props) {
 
   return (
     <div
-      className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer ${
+      className={`border-2 border-dashed rounded-xl p-4 md:p-6 text-center transition-colors cursor-pointer ${
         dragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 bg-white hover:border-indigo-400'
       }`}
       onClick={() => inputRef.current?.click()}

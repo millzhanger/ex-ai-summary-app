@@ -117,12 +117,12 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
   return (
     <div className="flex-1 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <p className="font-medium text-gray-800 truncate">{file.name}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-gray-100">
+        <p className="font-medium text-gray-800 truncate max-w-[60%]">{file.name}</p>
         <button
           onClick={handleSummarize}
           disabled={loadingSummary || loadingExtract || loadingPreview}
-          className="ml-4 shrink-0 px-4 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="shrink-0 px-4 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
         >
           {loadingSummary ? 'Summarizing…' : summary ? '🔄 Regenerate' : '✨ Summarize'}
         </button>
