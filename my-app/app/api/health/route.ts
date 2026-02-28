@@ -14,17 +14,17 @@ async function checkSupabase(): Promise<boolean> {
   }
 }
 
-async function checkOpenAI(): Promise<boolean> {
-  return Boolean(config.openai.apiKey);
+async function checkGitHub(): Promise<boolean> {
+  return Boolean(config.github.token);
 }
 
 export async function GET() {
-  const [supabaseOk, openaiOk] = await Promise.all([checkSupabase(), checkOpenAI()]);
+  const [supabaseOk, githubOk] = await Promise.all([checkSupabase(), checkGitHub()]);
 
-  const status = supabaseOk && openaiOk ? 'ok' : 'degraded';
+  const status = supabaseOk && githubOk ? 'ok' : 'degraded';
 
   return NextResponse.json(
-    { status, services: { supabase: supabaseOk, openai: openaiOk } },
+    { status, services: { supabase: supabaseOk, github: githubOk } },
     { status: status === 'ok' ? 200 : 503 },
   );
 }
