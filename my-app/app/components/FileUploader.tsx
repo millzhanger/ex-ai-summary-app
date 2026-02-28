@@ -16,6 +16,7 @@ export default function FileUploader({ onUploadComplete, onError }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
 
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
@@ -33,6 +34,7 @@ export default function FileUploader({ onUploadComplete, onError }: Props) {
     }
 
     try {
+      setSelectedName(file.name);
       setUploading(true);
       const uploaded = await uploadFile(file);
       onUploadComplete(uploaded);
@@ -40,6 +42,8 @@ export default function FileUploader({ onUploadComplete, onError }: Props) {
       onError(err instanceof Error ? err.message : 'Upload failed.');
     } finally {
       setUploading(false);
+      setSelectedName(null);
+      if (inputRef.current) inputRef.current.value = '';
     }
   };
 
@@ -61,7 +65,15 @@ export default function FileUploader({ onUploadComplete, onError }: Props) {
         onChange={(e) => handleFiles(e.target.files)}
       />
       {uploading ? (
-        <p className="text-sm text-indigo-600 font-medium">Uploading...</p>
+        <div className="space-y-1">
+          <p className="text-sm text-indigo-600 font-medium">Uploading…</p>
+          {selectedName && <p className="text-xs text-gray-500 truncate">{selectedName}</p>}
+        </div>
+      ) : selectedName ? (
+        <div className="space-y-1">
+          <p className="text-sm text-indigo-600 font-medium truncate">{selectedName}</p>
+          <p className="text-xs text-gray-400">Ready to upload</p>
+        </div>
       ) : (
         <>
           <p className="text-sm text-gray-600">Drag & drop or <span className="text-indigo-600 font-medium">browse</span></p>

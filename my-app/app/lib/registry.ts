@@ -30,7 +30,7 @@ async function writeRegistry(files: UploadedFile[]): Promise<void> {
   const { error } = await supabase.storage
     .from(config.supabase.storageBucket)
     .upload(REGISTRY_PATH, buffer, {
-      contentType: 'application/json',
+      contentType: 'text/plain',
       upsert: true,
     });
   if (error) throw new Error(`Could not write registry: ${error.message}`);
@@ -52,4 +52,10 @@ export async function registryAdd(file: UploadedFile): Promise<void> {
 export async function registryRemove(id: string): Promise<void> {
   const files = await readRegistry();
   await writeRegistry(files.filter((f) => f.id !== id));
+}
+
+export async function registryUpdateSummary(id: string, summary: string): Promise<void> {
+  const files = await readRegistry();
+  const updated = files.map((f) => f.id === id ? { ...f, summary } : f);
+  await writeRegistry(updated);
 }

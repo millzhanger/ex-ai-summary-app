@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { config } from '@/app/lib/config';
+import { registryUpdateSummary } from '@/app/lib/registry';
 
 export const runtime = 'nodejs';
 
@@ -53,6 +54,13 @@ export async function POST(req: NextRequest) {
     });
 
     const summary = completion.choices[0]?.message?.content?.trim() ?? 'No summary generated.';
+
+    // Persist the summary so it survives page refresh
+    try {
+      await registryUpdateSummary(fileId, summary);
+    } catch {
+      // Non-fatal — still return the summary even if persistence fails
+    }
 
     return NextResponse.json({ summary });
   } catch (err: unknown) {

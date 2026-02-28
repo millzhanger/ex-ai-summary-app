@@ -8,6 +8,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Fetch all previously uploaded files from storage. */
+export async function listFiles(): Promise<UploadedFile[]> {
+  const res = await fetch('/api/files');
+  return handleResponse<UploadedFile[]>(res);
+}
+
 /** Upload a file to the /api/upload endpoint. */
 export async function uploadFile(file: File): Promise<UploadedFile> {
   const form = new FormData();
@@ -47,4 +53,25 @@ export async function getPreviewUrl(storagePath: string): Promise<string> {
   });
   const data = await handleResponse<{ url: string }>(res);
   return data.url;
+}
+
+/** Delete a file from storage and the documents table. */
+export async function deleteFile(storagePath: string, id: string): Promise<void> {
+  const res = await fetch('/api/delete', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ storagePath, id }),
+  });
+  await handleResponse<{ success: boolean }>(res);
+}
+
+/** Download a file by fetching a signed URL then triggering a browser download. */
+export async function downloadFile(storagePath: string, fileName: string): Promise<void> {
+  const url = await getPreviewUrl(storagePath);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }

@@ -8,13 +8,14 @@ import { UploadedFile } from '@/app/lib/types';
 interface Props {
   file: UploadedFile | null;
   onError: (message: string) => void;
+  onSummaryGenerated?: (fileId: string, summary: string) => void;
 }
 
 function isPdf(file: UploadedFile) {
   return file.mimeType === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 }
 
-export default function DocumentViewer({ file, onError }: Props) {
+export default function DocumentViewer({ file, onError, onSummaryGenerated }: Props) {
   const [extractedText, setExtractedText] = useState<string | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -30,15 +31,22 @@ export default function DocumentViewer({ file, onError }: Props) {
       setPreviewUrl(null);
       return;
     }
+
     setExtractedText(null);
-    setSummary(null);
     setPreviewUrl(null);
 
     const pdf = isPdf(file);
-    setActiveTab(pdf ? 'preview' : 'text');
+
+    // Restore persisted summary; keep showing it but still load preview/text in background
+    if (file.summary) {
+      setSummary(file.summary);
+      setActiveTab('summary');
+    } else {
+      setSummary(null);
+      setActiveTab(pdf ? 'preview' : 'text');
+    }
 
     if (pdf) {
-      // Load PDF preview URL
       (async () => {
         try {
           setLoadingPreview(true);
@@ -51,7 +59,6 @@ export default function DocumentViewer({ file, onError }: Props) {
         }
       })();
     } else {
-      // Extract text for DOCX / TXT
       (async () => {
         try {
           setLoadingExtract(true);
@@ -76,6 +83,7 @@ export default function DocumentViewer({ file, onError }: Props) {
       if (!extractedText) setExtractedText(text);
       const result = await summarizeDocument(file, text);
       setSummary(result);
+      onSummaryGenerated?.(file.id, result);
     } catch (err: unknown) {
       onError(err instanceof Error ? err.message : 'Summarization failed.');
     } finally {
@@ -111,7 +119,7 @@ export default function DocumentViewer({ file, onError }: Props) {
           disabled={loadingSummary || loadingExtract || loadingPreview}
           className="ml-4 shrink-0 px-4 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
         >
-          {loadingSummary ? 'Summarizing…' : '✨ Summarize'}
+          {loadingSummary ? 'Summarizing…' : summary ? '🔄 Regenerate' : '✨ Summarize'}
         </button>
       </div>
 

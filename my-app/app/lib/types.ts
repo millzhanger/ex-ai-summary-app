@@ -5,6 +5,7 @@ export interface UploadedFile {
   mimeType: string;
   storagePath: string;
   uploadedAt: string;
+  summary?: string;
 }
 
 export interface ExtractResponse {
