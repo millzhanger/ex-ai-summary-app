@@ -34,14 +34,13 @@ export async function extractText(file: UploadedFile): Promise<string> {
 }
 
 /** Request an AI summary for an already-uploaded document. */
-export async function summarizeDocument(file: UploadedFile, text: string): Promise<string> {
+export async function summarizeDocument(file: UploadedFile, text: string): Promise<{ summary: string; summaryZh: string }> {
   const res = await fetch('/api/summarize', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fileId: file.id, text }),
   });
-  const data = await handleResponse<{ summary: string }>(res);
-  return data.summary;
+  return handleResponse<{ summary: string; summaryZh: string }>(res);
 }
 
 /** Get a short-lived signed URL for previewing a stored file. */

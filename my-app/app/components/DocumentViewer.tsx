@@ -8,7 +8,7 @@ import { UploadedFile } from '@/app/lib/types';
 interface Props {
   file: UploadedFile | null;
   onError: (message: string) => void;
-  onSummaryGenerated?: (fileId: string, summary: string) => void;
+  onSummaryGenerated?: (fileId: string, summary: string, summaryZh: string) => void;
 }
 
 function isPdf(file: UploadedFile) {
@@ -18,6 +18,7 @@ function isPdf(file: UploadedFile) {
 export default function DocumentViewer({ file, onError, onSummaryGenerated }: Props) {
   const [extractedText, setExtractedText] = useState<string | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
+  const [summaryZh, setSummaryZh] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [loadingExtract, setLoadingExtract] = useState(false);
@@ -28,6 +29,7 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
     if (!file) {
       setExtractedText(null);
       setSummary(null);
+      setSummaryZh(null);
       setPreviewUrl(null);
       return;
     }
@@ -37,12 +39,14 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
 
     const pdf = isPdf(file);
 
-    // Restore persisted summary; keep showing it but still load preview/text in background
+    // Restore persisted summaries; keep showing them but still load preview/text in background
     if (file.summary) {
       setSummary(file.summary);
+      setSummaryZh(file.summaryZh ?? null);
       setActiveTab('summary');
     } else {
       setSummary(null);
+      setSummaryZh(null);
       setActiveTab(pdf ? 'preview' : 'text');
     }
 
@@ -82,8 +86,9 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
       const text = extractedText ?? (await extractText(file));
       if (!extractedText) setExtractedText(text);
       const result = await summarizeDocument(file, text);
-      setSummary(result);
-      onSummaryGenerated?.(file.id, result);
+      setSummary(result.summary);
+      setSummaryZh(result.summaryZh);
+      onSummaryGenerated?.(file.id, result.summary, result.summaryZh);
     } catch (err: unknown) {
       onError(err instanceof Error ? err.message : 'Summarization failed.');
     } finally {
@@ -164,13 +169,26 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
         )}
 
         {activeTab === 'summary' && (
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {loadingSummary
               ? <Skeleton />
               : summary
-                ? <div className="prose prose-sm prose-indigo max-w-none text-gray-700">
-                    <ReactMarkdown>{summary}</ReactMarkdown>
-                  </div>
+                ? <>
+                    <div>
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">English</h3>
+                      <div className="prose prose-sm prose-indigo max-w-none text-gray-700">
+                        <ReactMarkdown>{summary}</ReactMarkdown>
+                      </div>
+                    </div>
+                    {summaryZh && (
+                      <div>
+                        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">中文</h3>
+                        <div className="prose prose-sm prose-indigo max-w-none text-gray-700">
+                          <ReactMarkdown>{summaryZh}</ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 : <p className="text-sm text-gray-400">Click &#34;Summarize&#34; to generate an AI summary.</p>
             }
           </div>

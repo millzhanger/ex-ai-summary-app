@@ -33,9 +33,9 @@ export default function Home() {
     setStatus({ message: `"${file.name}" deleted.`, type: 'info' });
   };
 
-  const handleSummaryGenerated = (fileId: string, summary: string) => {
-    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, summary } : f));
-    setSelectedFile((prev) => prev?.id === fileId ? { ...prev, summary } : prev);
+  const handleSummaryGenerated = (fileId: string, summary: string, summaryZh: string) => {
+    setFiles((prev) => prev.map((f) => f.id === fileId ? { ...f, summary, summaryZh } : f));
+    setSelectedFile((prev) => prev?.id === fileId ? { ...prev, summary, summaryZh } : prev);
   };
 
   const handleError = (message: string) => {

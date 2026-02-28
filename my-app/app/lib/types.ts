@@ -6,6 +6,7 @@ export interface UploadedFile {
   storagePath: string;
   uploadedAt: string;
   summary?: string;
+  summaryZh?: string;
 }
 
 export interface ExtractResponse {

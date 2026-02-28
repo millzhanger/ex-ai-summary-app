@@ -58,7 +58,7 @@ export function useDocuments(): UseDocumentsReturn {
       setLoading((l) => ({ ...l, summarize: true }));
       const currentText = extractedText ?? (await extractText(selectedFile));
       const result = await summarizeDocument(selectedFile, currentText);
-      setSummary(result);
+      setSummary(result.summary);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Summarization failed.');
     } finally {

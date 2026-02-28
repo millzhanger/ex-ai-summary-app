@@ -54,8 +54,8 @@ export async function registryRemove(id: string): Promise<void> {
   await writeRegistry(files.filter((f) => f.id !== id));
 }
 
-export async function registryUpdateSummary(id: string, summary: string): Promise<void> {
+export async function registryUpdateSummary(id: string, summary: string, summaryZh?: string): Promise<void> {
   const files = await readRegistry();
-  const updated = files.map((f) => f.id === id ? { ...f, summary } : f);
+  const updated = files.map((f) => f.id === id ? { ...f, summary, ...(summaryZh ? { summaryZh } : {}) } : f);
   await writeRegistry(updated);
 }
