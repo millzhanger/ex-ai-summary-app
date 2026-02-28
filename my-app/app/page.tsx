@@ -14,7 +14,6 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<UploadedFile | null>(null);
   const [status, setStatus] = useState<{ message: string; type: 'info' | 'success' | 'error' } | null>(null);
   const [loadingFiles, setLoadingFiles] = useState(true);
-  const [mobileView, setMobileView] = useState<'list' | 'viewer'>('list');
 
   useEffect(() => {
     listFiles()
@@ -30,16 +29,12 @@ export default function Home() {
 
   const handleDelete = (file: UploadedFile) => {
     setFiles((prev) => prev.filter((f) => f.id !== file.id));
-    if (selectedFile?.id === file.id) {
-      setSelectedFile(null);
-      setMobileView('list');
-    }
+    if (selectedFile?.id === file.id) setSelectedFile(null);
     setStatus({ message: `"${file.name}" deleted.`, type: 'info' });
   };
 
   const handleSelect = (file: UploadedFile) => {
     setSelectedFile(file);
-    setMobileView('viewer');
   };
 
   const handleSummaryGenerated = (fileId: string, summary: string, summaryZh: string) => {
@@ -57,7 +52,6 @@ export default function Home() {
       await resetRegistry();
       setFiles([]);
       setSelectedFile(null);
-      setMobileView('list');
       setStatus({ message: 'Registry cleared. You can now re-upload your files.', type: 'success' });
     } catch (err) {
       setStatus({ message: err instanceof Error ? err.message : 'Reset failed.', type: 'error' });
@@ -65,38 +59,45 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen flex flex-col overflow-hidden">
+    <main className="min-h-screen flex flex-col bg-gray-50">
       <Header />
 
-      {/* Mobile tab bar */}
-      <div className="md:hidden flex border-b border-gray-200 bg-white">
-        <button
-          onClick={() => setMobileView('list')}
-          className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
-            mobileView === 'list'
-              ? 'border-b-2 border-indigo-500 text-indigo-600'
-              : 'text-gray-500'
-          }`}
-        >
-          Documents
-        </button>
-        <button
-          onClick={() => setMobileView('viewer')}
-          className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
-            mobileView === 'viewer'
-              ? 'border-b-2 border-indigo-500 text-indigo-600'
-              : 'text-gray-500'
-          }`}
-        >
-          {selectedFile ? selectedFile.name.length > 20 ? selectedFile.name.slice(0, 20) + '…' : selectedFile.name : 'Viewer'}
-        </button>
+      {status && (
+        <div className="container mx-auto px-3 md:px-4 pt-3">
+          <StatusMessage message={status.message} type={status.type} onClose={() => setStatus(null)} />
+        </div>
+      )}
+
+      {/* ── MOBILE layout (< md): vertical stack ── */}
+      <div className="md:hidden flex flex-col gap-3 px-3 py-3">
+        {/* 1. Upload */}
+        <FileUploader onUploadComplete={handleUploadComplete} onError={handleError} />
+
+        {/* 2. AI Summary */}
+        <div className="h-[50vh]">
+          <DocumentViewer file={selectedFile} onError={handleError} onSummaryGenerated={handleSummaryGenerated} />
+        </div>
+
+        {/* 3. File list */}
+        {loadingFiles ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-4 text-center text-sm text-gray-400 animate-pulse">
+            Loading documents…
+          </div>
+        ) : (
+          <>
+            <FileList files={files} selectedFile={selectedFile} onSelect={handleSelect} onDelete={handleDelete} />
+            {files.length > 0 && (
+              <button onClick={handleResetRegistry} className="text-xs text-red-400 hover:text-red-600 underline text-center">
+                Clear registry (fix &quot;Object not found&quot; errors)
+              </button>
+            )}
+          </>
+        )}
       </div>
 
-      <div className="flex flex-1 overflow-hidden container mx-auto px-3 md:px-4 py-3 md:py-8 gap-6 min-h-0">
-        {/* Sidebar — always visible on md+, conditionally on mobile */}
-        <aside className={`w-full md:w-80 flex flex-col gap-3 shrink-0 overflow-y-auto ${
-          mobileView === 'list' ? 'flex' : 'hidden md:flex'
-        }`}>
+      {/* ── DESKTOP layout (md+): sidebar + viewer ── */}
+      <div className="hidden md:flex flex-1 overflow-hidden container mx-auto px-4 py-8 gap-6 min-h-0">
+        <aside className="w-80 flex flex-col gap-4 shrink-0 overflow-y-auto">
           <FileUploader onUploadComplete={handleUploadComplete} onError={handleError} />
           {loadingFiles ? (
             <div className="bg-white rounded-xl border border-gray-200 p-4 text-center text-sm text-gray-400 animate-pulse">
@@ -106,22 +107,14 @@ export default function Home() {
             <>
               <FileList files={files} selectedFile={selectedFile} onSelect={handleSelect} onDelete={handleDelete} />
               {files.length > 0 && (
-                <button
-                  onClick={handleResetRegistry}
-                  className="text-xs text-red-400 hover:text-red-600 underline text-center mt-1"
-                >
+                <button onClick={handleResetRegistry} className="text-xs text-red-400 hover:text-red-600 underline text-center mt-1">
                   Clear registry (fix &quot;Object not found&quot; errors)
                 </button>
               )}
             </>
           )}
         </aside>
-
-        {/* Viewer — always visible on md+, conditionally on mobile */}
-        <section className={`flex-1 flex flex-col gap-4 min-w-0 ${
-          mobileView === 'viewer' ? 'flex' : 'hidden md:flex'
-        }`}>
-          {status && <StatusMessage message={status.message} type={status.type} onClose={() => setStatus(null)} />}
+        <section className="flex-1 flex flex-col gap-4 min-w-0">
           <DocumentViewer file={selectedFile} onError={handleError} onSummaryGenerated={handleSummaryGenerated} />
         </section>
       </div>

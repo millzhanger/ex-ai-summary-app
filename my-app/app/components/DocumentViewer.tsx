@@ -98,8 +98,8 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
 
   if (!file) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-white rounded-xl border border-gray-200 text-gray-400 text-sm">
-        Select a document to view its content and summary.
+      <div className="h-full flex items-center justify-center bg-white rounded-xl border border-gray-200 text-gray-400 text-sm p-4 text-center">
+        Select a document below to view its content and summary.
       </div>
     );
   }
@@ -115,7 +115,7 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="h-full flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 px-3 md:px-4 py-2 md:py-3 border-b border-gray-100">
         <p className="font-medium text-gray-800 truncate text-sm md:text-base max-w-[60%]">{file.name}</p>
