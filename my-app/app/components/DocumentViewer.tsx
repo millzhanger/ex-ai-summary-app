@@ -180,14 +180,13 @@ export default function DocumentViewer({ file, onError, onSummaryGenerated }: Pr
                         <ReactMarkdown>{summary}</ReactMarkdown>
                       </div>
                     </div>
-                    {summaryZh && (
-                      <div>
-                        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">中文</h3>
-                        <div className="prose prose-sm prose-indigo max-w-none text-gray-700">
-                          <ReactMarkdown>{summaryZh}</ReactMarkdown>
-                        </div>
+                    <hr className="border-gray-100" />
+                    <div>
+                      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">中文摘要</h3>
+                      <div className="prose prose-sm prose-indigo max-w-none text-gray-700">
+                        <ReactMarkdown>{summaryZh ?? '中文摘要生成中，请点击「🔄 Regenerate」重新生成。'}</ReactMarkdown>
                       </div>
-                    )}
+                    </div>
                   </>
                 : <p className="text-sm text-gray-400">Click &#34;Summarize&#34; to generate an AI summary.</p>
             }
